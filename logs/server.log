@@ -1,0 +1,36 @@
+2025-12-20T20:23:33.763+0800	INFO	zlog/logger.go:58	my chat 正在启动
+2025-12-20T20:23:33.783+0800	INFO	zlog/logger.go:58	服务器启动成功	{"port": "8080"}
+2025-12-20T20:28:38.139+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.049653444}
+2025-12-20T20:28:44.860+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.040770847}
+2025-12-20T20:30:08.747+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.042431698}
+2025-12-20T20:31:23.284+0800	ERROR	zlog/logger.go:64	用户不存在	{"phone": "18945296990", "error": "record not found"}
+2025-12-20T20:31:23.284+0800	WARN	zlog/logger.go:61	Login failed	{"telephone": "18945296990", "error": "code: 20103, message: User not found"}
+2025-12-20T20:31:23.284+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.001074735}
+2025-12-20T20:32:45.072+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.040207607}
+2025-12-20T20:41:34.378+0800	INFO	zlog/logger.go:58	my chat 正在启动
+2025-12-20T20:41:34.417+0800	INFO	zlog/logger.go:58	服务器启动成功	{"port": "8080"}
+2025-12-20T20:41:53.089+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.065363339}
+2025-12-20T20:41:58.668+0800	WARN	zlog/logger.go:61	Login failed	{"telephone": "18945296990", "error": "token生成失败"}
+2025-12-20T20:41:58.668+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.041059688}
+2025-12-20T20:47:31.327+0800	INFO	zlog/logger.go:58	my chat 正在启动
+2025-12-20T20:47:31.359+0800	INFO	zlog/logger.go:58	服务器启动成功	{"port": "8080"}
+2025-12-20T20:47:36.493+0800	WARN	zlog/logger.go:61	Login failed	{"telephone": "18945296990", "error": "token生成失败"}
+2025-12-20T20:47:36.493+0800	INFO	zlog/logger.go:58	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.04026673}
+2025-12-20T20:55:24.710+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T20:55:24.723+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T20:55:40.909+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T20:55:40.930+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T20:57:33.511+0800	WARN	zlog/logger.go:62	Login failed	{"telephone": "18945296990", "error": "token生成失败"}
+2025-12-20T20:57:33.512+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 103.142545213}
+2025-12-20T20:57:36.498+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T20:57:36.511+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T20:58:37.665+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T20:58:37.698+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T21:02:15.010+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T21:02:15.023+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T21:02:36.209+0800	INFO	zlog/logger.go:59	Login success	{"uuid": "U282f3817-f2ee-4a3d-b72f-5a73b77c0cb8"}
+2025-12-20T21:02:42.960+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 21.764625706}
+2025-12-20T21:05:02.050+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-20T21:05:02.066+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-20T21:05:04.373+0800	INFO	zlog/logger.go:59	Login success	{"uuid": "U282f3817-f2ee-4a3d-b72f-5a73b77c0cb8"}
+2025-12-20T21:05:04.373+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.039142842}
