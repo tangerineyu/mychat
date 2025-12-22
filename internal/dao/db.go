@@ -29,6 +29,7 @@ func InitDB() {
 		&model.User{},
 		&model.Group{},
 		&model.GroupMember{},
+		&model.Message{},
 	)
 	if err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)

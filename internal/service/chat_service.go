@@ -1,0 +1,53 @@
+package service
+
+import (
+	"encoding/json"
+	"my-chat/internal/model"
+	"my-chat/internal/repo"
+
+	"github.com/google/uuid"
+)
+
+type ChatService struct {
+	msgRepo repo.MessageRepository
+	//groupRepo repo.GroupRepository
+}
+
+func NewChatService(msgRepo repo.MessageRepository) *ChatService {
+	return &ChatService{msgRepo: msgRepo}
+}
+
+type MsgPayload struct {
+	Uuid       string `json:"uuid"`
+	FormUserId string `json:"form_user_id"`
+	ToId       string `json:"to_id"`
+	Content    string `json:"content"`
+	Type       int    `json:"type"`
+	MediaType  int    `json:"media_type"`
+	CreatedAt  string `json:"created_at"`
+}
+
+func (s *ChatService) SaveAndFactory(fromId, toId, content string, chatType, mediaType int) ([]byte, error) {
+	msgModel := &model.Message{
+		Uuid:       "M" + uuid.New().String(),
+		FromUserId: fromId,
+		ToId:       toId,
+		Content:    content,
+		Type:       chatType,
+		MediaType:  mediaType,
+	}
+	err := s.msgRepo.CreateMessage(msgModel)
+	if err != nil {
+		return nil, err
+	}
+	payload := MsgPayload{
+		Uuid:       msgModel.Uuid,
+		FormUserId: msgModel.FromUserId,
+		ToId:       msgModel.ToId,
+		Content:    msgModel.Content,
+		Type:       msgModel.Type,
+		MediaType:  msgModel.MediaType,
+		CreatedAt:  msgModel.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+	return json.Marshal(&payload)
+}

@@ -22,16 +22,17 @@ func main() {
 	dao.InitDB()
 
 	userRepo := repo.NewUserRepository(dao.DB)
+	msgRepo := repo.NewMessageRepository(dao.DB)
 	userService := service.NewUserService(userRepo)
+	chatService := service.NewChatService(msgRepo)
+	wsManager := websocket.NewClientManager(chatService)
+	go wsManager.Start()
 	userHandler := handler.NewUserHandler(userService)
-
+	wsHandler := handler.NewWSHandler(wsManager)
+	
 	r := gin.New()
 	r.Use(middleware.GinLogger())
 	r.Use(gin.Recovery())
-
-	wsManager := websocket.NewClientManager()
-	go wsManager.Start()
-	wsHandler := handler.NewWSHandler(wsManager)
 
 	v1 := r.Group("/api/v1")
 	{

@@ -44,3 +44,22 @@
 2025-12-22T14:33:32.541+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "123456"}
 2025-12-22T14:33:42.125+0800	ERROR	zlog/logger.go:65	WS read error	{"error": "websocket: close 1005 (no status)"}
 2025-12-22T14:33:42.125+0800	INFO	zlog/logger.go:59	Disconnect	{"uuid": "123456"}
+2025-12-22T15:49:34.767+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T15:49:34.793+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T15:49:34.793+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T15:49:52.801+0800	ERROR	zlog/logger.go:65	此手机号已经注册	{"phone": "18945296990"}
+2025-12-22T15:49:52.801+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000700906}
+2025-12-22T15:50:15.766+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/register", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.043500984}
+2025-12-22T15:50:27.887+0800	INFO	zlog/logger.go:59	Login success	{"uuid": "U282f3817-f2ee-4a3d-b72f-5a73b77c0cb8"}
+2025-12-22T15:50:27.887+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.040947706}
+2025-12-22T15:52:26.019+0800	INFO	zlog/logger.go:59	Request	{"status": 404, "method": "GET", "path": "/ws", "query": "token=U_1001", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000000555}
+2025-12-22T15:55:34.809+0800	INFO	zlog/logger.go:59	Request	{"status": 404, "method": "GET", "path": "/ws", "query": "token=U_1001", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000000724}
+2025-12-22T16:01:53.400+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T16:01:53.433+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T16:01:53.433+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T16:01:59.262+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1001", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000047337}
+2025-12-22T16:01:59.262+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1001"}
+2025-12-22T16:02:57.156+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1002", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000054489}
+2025-12-22T16:02:57.156+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1002"}
+2025-12-22T16:05:11.136+0800	DEBUG	zlog/logger.go:56	User offline, cannot send message	{"target": ""}
+2025-12-22T16:05:32.324+0800	DEBUG	zlog/logger.go:56	User offline, cannot send message	{"target": ""}

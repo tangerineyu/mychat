@@ -13,7 +13,8 @@ const (
 )
 
 type Message struct {
-	Action  Action          `json:"action"`
+	Action Action `json:"action"`
+	//不使用string，因为内容会被转义
 	Content json.RawMessage `json:"content"`
 	//追踪日志
 	TraceId string `json:"trace_id,omitempty"`
