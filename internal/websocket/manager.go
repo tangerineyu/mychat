@@ -94,7 +94,16 @@ func (manager *ClientManager) dispatch(message []byte) {
 			manager.sendToUser(chatData.ReceiverId, jsonBytes)
 			manager.sendToUser(chatData.SendId, jsonBytes)
 		} else if chatData.Type == 2 {
-			zlog.Info("暂未实现")
+			memberIds, err := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
+			if err != nil {
+				zlog.Error("Get Group Members Failed",
+					zap.Error(err))
+				return
+			}
+			//遍历，发送
+			for _, memberID := range memberIds {
+				manager.sendToUser(memberID, jsonBytes)
+			}
 		}
 	}
 }

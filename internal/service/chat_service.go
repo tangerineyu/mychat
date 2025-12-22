@@ -9,12 +9,15 @@ import (
 )
 
 type ChatService struct {
-	msgRepo repo.MessageRepository
-	//groupRepo repo.GroupRepository
+	msgRepo   repo.MessageRepository
+	groupRepo repo.GroupRepository
 }
 
-func NewChatService(msgRepo repo.MessageRepository) *ChatService {
-	return &ChatService{msgRepo: msgRepo}
+func NewChatService(msgRepo repo.MessageRepository, groupRepo repo.GroupRepository) *ChatService {
+	return &ChatService{
+		msgRepo:   msgRepo,
+		groupRepo: groupRepo,
+	}
 }
 
 type MsgPayload struct {
@@ -50,4 +53,8 @@ func (s *ChatService) SaveAndFactory(fromId, toId, content string, chatType, med
 		CreatedAt:  msgModel.CreatedAt.Format("2006-01-02 15:04:05"),
 	}
 	return json.Marshal(&payload)
+}
+func (s *ChatService) GetGroupMemberIDs(groupId string) ([]string, error) {
+	//未来可以使用redis
+	return s.groupRepo.GetMemberIDs(groupId)
 }

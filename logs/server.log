@@ -63,3 +63,21 @@
 2025-12-22T16:02:57.156+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1002"}
 2025-12-22T16:05:11.136+0800	DEBUG	zlog/logger.go:56	User offline, cannot send message	{"target": ""}
 2025-12-22T16:05:32.324+0800	DEBUG	zlog/logger.go:56	User offline, cannot send message	{"target": ""}
+2025-12-22T20:29:19.546+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T20:29:19.565+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T20:29:19.566+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T20:29:28.135+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1001", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000034631}
+2025-12-22T20:29:28.135+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1001"}
+2025-12-22T20:29:40.489+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1002", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000068247}
+2025-12-22T20:29:40.489+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1002"}
+2025-12-22T20:30:42.839+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1003", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000053194}
+2025-12-22T20:30:42.839+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1003"}
+2025-12-22T20:38:59.294+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T20:38:59.314+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T20:38:59.314+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T20:39:07.596+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1001", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000323212}
+2025-12-22T20:39:07.596+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1001"}
+2025-12-22T20:39:10.065+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1002", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000049949}
+2025-12-22T20:39:10.065+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1002"}
+2025-12-22T20:39:11.736+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=U_1003", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.000043385}
+2025-12-22T20:39:11.736+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "U_1003"}
