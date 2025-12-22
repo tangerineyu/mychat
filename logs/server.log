@@ -34,3 +34,13 @@
 2025-12-20T21:05:02.066+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
 2025-12-20T21:05:04.373+0800	INFO	zlog/logger.go:59	Login success	{"uuid": "U282f3817-f2ee-4a3d-b72f-5a73b77c0cb8"}
 2025-12-20T21:05:04.373+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "POST", "path": "/api/v1/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.039142842}
+2025-12-22T14:31:47.352+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T14:31:47.369+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T14:31:47.369+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T14:33:28.660+0800	INFO	zlog/logger.go:59	my chat 正在启动
+2025-12-22T14:33:28.671+0800	INFO	zlog/logger.go:59	服务器启动成功	{"port": "8080"}
+2025-12-22T14:33:28.671+0800	INFO	zlog/logger.go:59	Websocket Client Manager Started
+2025-12-22T14:33:32.541+0800	INFO	zlog/logger.go:59	Request	{"status": 200, "method": "GET", "path": "/api/v1/ws", "query": "token=123456", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "errors": "", "cost": 0.00004012}
+2025-12-22T14:33:32.541+0800	INFO	zlog/logger.go:59	New connection	{"uuid": "123456"}
+2025-12-22T14:33:42.125+0800	ERROR	zlog/logger.go:65	WS read error	{"error": "websocket: close 1005 (no status)"}
+2025-12-22T14:33:42.125+0800	INFO	zlog/logger.go:59	Disconnect	{"uuid": "123456"}

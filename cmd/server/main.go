@@ -7,6 +7,7 @@ import (
 	"my-chat/internal/dao"
 	"my-chat/internal/repo"
 	"my-chat/internal/service"
+	"my-chat/internal/websocket"
 	"my-chat/pkg/zlog"
 
 	"github.com/gin-gonic/gin"
@@ -28,11 +29,16 @@ func main() {
 	r.Use(middleware.GinLogger())
 	r.Use(gin.Recovery())
 
+	wsManager := websocket.NewClientManager()
+	go wsManager.Start()
+	wsHandler := handler.NewWSHandler(wsManager)
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/register", userHandler.Register)
 		v1.POST("/login", userHandler.Login)
 		v1.POST("/refresh-token", userHandler.RefreshToken)
+		v1.GET("/ws", wsHandler.Connect)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {
