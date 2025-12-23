@@ -32,10 +32,15 @@ func (c *Client) ReadPump() {
 	}()
 	//设置最大消息大小和读超时
 	c.Conn.SetReadLimit(maxMessageSize)
-	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		return
+	}
 	//收到pong消息后更新读超时
 	c.Conn.SetPongHandler(func(string) error {
-		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err = c.Conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
 		return nil
 	})
 	for {
@@ -61,28 +66,39 @@ func (c *Client) WritePump() {
 		select {
 		//c.Send有消息要发送
 		case message, ok := <-c.Send:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
 			if !ok {
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				//忽略err，因为本来就要退出了
+				_ = c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			w, err := c.Conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			//w.Write(message)
+			if _, err := w.Write(message); err != nil {
+				return
+			}
 			//如果 Send 通道里堆积了好几条消息，与其发好几次 TCP 包，
 			//不如一次性全部读出来，合并到一个 Writer 里发出去，减少网络开销。
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
-				w.Write(<-c.Send)
+				//w.Write(<-c.Send)
+				if _, err := w.Write(<-c.Send); err != nil {
+					return
+				}
 			}
 			if err := w.Close(); err != nil {
 				return
 			}
 		//发送ping消息
 		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
 			//客户端收到后会回复一个pong消息，触发ReadPump里的pong处理器
 			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return

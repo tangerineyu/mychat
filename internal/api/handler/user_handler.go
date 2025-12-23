@@ -82,7 +82,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	if err != nil {
 		//刷新失败，前端应强制跳转回登录页
 		c.JSON(http.StatusOK, gin.H{"code": 401, "message": err.Error()})
-		
+
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -17,7 +17,9 @@ import (
 func main() {
 	config.InitConfig()
 	zlog.Init(config.GlobalConfig.Log)
-	defer zlog.L.Sync()
+	defer func() {
+		_ = zlog.L.Sync()
+	}()
 	zlog.Info("my chat 正在启动")
 	dao.InitDB()
 	dao.InitRedis()
