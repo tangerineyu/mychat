@@ -30,10 +30,13 @@ func main() {
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
+	groupService := service.NewGroupService(groupRepo)
+
 	wsManager := websocket.NewClientManager(chatService)
 	go wsManager.Start()
 	userHandler := handler.NewUserHandler(userService)
 	wsHandler := handler.NewWSHandler(wsManager)
+	groupHandler := handler.NewGroupHandler(groupService)
 
 	r := gin.New()
 	r.Use(middleware.GinLogger())
@@ -45,6 +48,8 @@ func main() {
 		v1.POST("/login", userHandler.Login)
 		v1.POST("/refresh-token", userHandler.RefreshToken)
 		v1.GET("/ws", wsHandler.Connect)
+		v1.POST("/group/create", groupHandler.Create)
+		v1.POST("/group/join", groupHandler.Join)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {

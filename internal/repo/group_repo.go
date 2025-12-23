@@ -15,10 +15,54 @@ import (
 
 type GroupRepository interface {
 	GetMemberIDs(groupId string) ([]string, error)
+	CreateGroup(group *model.Group, ownerMember *model.GroupMember) error
+	AddMember(member *model.GroupMember) error
+	FindGroup(groupId string) (*model.Group, error)
+	IsMember(groupId, userId string) (bool, error)
 }
 type groupRepository struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+func (r *groupRepository) CreateGroup(group *model.Group, ownerMember *model.GroupMember) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(group).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(ownerMember).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+func (r *groupRepository) AddMember(member *model.GroupMember) error {
+	err := r.db.Create(member).Error
+	if err != nil {
+		return err
+	}
+	cacheKey := fmt.Sprintf("im:group:members:%s", member.GroupId)
+	//数据变动直接删除缓存
+	if err := r.rdb.SAdd(context.Background(), cacheKey, member.UserId).Err(); err != nil {
+		zlog.Error("Failed to delete cache", zap.String("key", cacheKey), zap.Error(err))
+	}
+	return nil
+}
+
+func (r *groupRepository) FindGroup(groupId string) (*model.Group, error) {
+	var group model.Group
+	err := r.db.Where("uuid = ?", groupId).First(&group).Error
+	return &group, err
+}
+
+// 用户是不是在群里
+func (r *groupRepository) IsMember(groupId, userId string) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.GroupMember{}).
+		Where("group_id = ? AND user_id = ?", groupId, userId).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func NewGroupRepository(db *gorm.DB, rdb *redis.Client) GroupRepository {
