@@ -11,3 +11,8 @@ log:
   max_age: 30
   max_backups: 5
   compress: true
+redis:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
+  pool_size: 100

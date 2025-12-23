@@ -9,6 +9,7 @@ import (
 type Config struct {
 	MySQL MySQLConfig
 	Log   LogConfig
+	Redis RedisConfig
 }
 type MySQLConfig struct {
 	Host     string
@@ -24,6 +25,12 @@ type LogConfig struct {
 	MaxAge     int `mapstructure:"max_age"`
 	MaxBackups int `mapstructure:"max_backups"`
 	Compress   bool
+}
+type RedisConfig struct {
+	Addr     string
+	Password string
+	DB       int
+	PoolSize int `mapstructure:"pool_size"`
 }
 
 var GlobalConfig *Config

@@ -20,10 +20,11 @@ func main() {
 	defer zlog.L.Sync()
 	zlog.Info("my chat 正在启动")
 	dao.InitDB()
+	dao.InitRedis()
 
 	userRepo := repo.NewUserRepository(dao.DB)
 	msgRepo := repo.NewMessageRepository(dao.DB)
-	groupRepo := repo.NewGroupRepository(dao.DB)
+	groupRepo := repo.NewGroupRepository(dao.DB, dao.RDB)
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
