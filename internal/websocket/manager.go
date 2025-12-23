@@ -1,7 +1,9 @@
 package websocket
 
 import (
+	"context"
 	"encoding/json"
+	"my-chat/internal/mq"
 	"my-chat/internal/service"
 	"my-chat/pkg/zlog"
 	"sync"
@@ -72,7 +74,7 @@ func (manager *ClientManager) dispatch(message []byte) {
 		return
 	}
 	if rawMsg.Action == ActionChatMessage {
-		var chatData ChatMessageContent
+		/**var chatData ChatMessageContent
 		if err := json.Unmarshal(rawMsg.Content, &chatData); err != nil {
 			zlog.Error("Content Parse Error", zap.Error(err))
 			return
@@ -104,6 +106,12 @@ func (manager *ClientManager) dispatch(message []byte) {
 			for _, memberID := range memberIds {
 				manager.sendToUser(memberID, jsonBytes)
 			}
+		}**/
+		ctx := context.Background()
+		err := mq.GlobalKafka.Publish(ctx, nil, message)
+		if err != nil {
+			zlog.Error("Kafka Publish Error", zap.Error(err))
+			return
 		}
 	}
 }

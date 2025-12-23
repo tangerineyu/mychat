@@ -5,6 +5,7 @@ import (
 	"my-chat/internal/api/middleware"
 	"my-chat/internal/config"
 	"my-chat/internal/dao"
+	"my-chat/internal/mq"
 	"my-chat/internal/repo"
 	"my-chat/internal/service"
 	"my-chat/internal/websocket"
@@ -23,6 +24,7 @@ func main() {
 	zlog.Info("my chat 正在启动")
 	dao.InitDB()
 	dao.InitRedis()
+	mq.InitKafka()
 
 	userRepo := repo.NewUserRepository(dao.DB)
 	msgRepo := repo.NewMessageRepository(dao.DB)
@@ -34,6 +36,7 @@ func main() {
 
 	wsManager := websocket.NewClientManager(chatService)
 	go wsManager.Start()
+	go wsManager.StartConsumer()
 	userHandler := handler.NewUserHandler(userService)
 	wsHandler := handler.NewWSHandler(wsManager)
 	groupHandler := handler.NewGroupHandler(groupService)

@@ -10,6 +10,7 @@ type Config struct {
 	MySQL MySQLConfig
 	Log   LogConfig
 	Redis RedisConfig
+	Kafka KafkaConfig
 }
 type MySQLConfig struct {
 	Host     string
@@ -31,6 +32,12 @@ type RedisConfig struct {
 	Password string
 	DB       int
 	PoolSize int `mapstructure:"pool_size"`
+}
+
+type KafkaConfig struct {
+	Addr  string
+	Topic string
+	Group string
 }
 
 var GlobalConfig *Config
