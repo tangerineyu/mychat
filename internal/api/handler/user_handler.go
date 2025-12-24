@@ -2,6 +2,7 @@ package handler
 
 import (
 	"my-chat/pkg/errno"
+	"my-chat/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -93,4 +94,22 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 			"refresh_token": newRefresh,
 		},
 	})
+}
+func (h *UserHandler) UploadAvatar(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	if !upload.CheckImageExt(file.Filename) {
+		SendResponse(c, errno.New(400, "不支持的文件格式"), nil)
+		return
+	}
+	path, err := upload.SaveFile(file, "static/avatars")
+	if err != nil {
+		zlog.Error("upload failed", zap.Error(err))
+		SendResponse(c, errno.InternalServerError, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"url": path})
 }

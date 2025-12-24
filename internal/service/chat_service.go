@@ -22,7 +22,7 @@ func NewChatService(msgRepo repo.MessageRepository, groupRepo repo.GroupReposito
 
 type MsgPayload struct {
 	Uuid       string `json:"uuid"`
-	FormUserId string `json:"form_user_id"`
+	FromUserId string `json:"form_user_id"`
 	ToId       string `json:"to_id"`
 	Content    string `json:"content"`
 	Type       int    `json:"type"`
@@ -45,7 +45,7 @@ func (s *ChatService) SaveAndFactory(fromId, toId, content string, chatType, med
 	}
 	payload := MsgPayload{
 		Uuid:       msgModel.Uuid,
-		FormUserId: msgModel.FromUserId,
+		FromUserId: msgModel.FromUserId,
 		ToId:       msgModel.ToId,
 		Content:    msgModel.Content,
 		Type:       msgModel.Type,
@@ -57,4 +57,23 @@ func (s *ChatService) SaveAndFactory(fromId, toId, content string, chatType, med
 func (s *ChatService) GetGroupMemberIDs(groupId string) ([]string, error) {
 	//未来可以使用redis
 	return s.groupRepo.GetMemberIDs(groupId)
+}
+func (s *ChatService) GetHistory(userId, targetId string, chatType int) ([]MsgPayload, error) {
+	messages, err := s.msgRepo.GetMessages(userId, targetId, chatType, 0, 50)
+	if err != nil {
+		return nil, err
+	}
+	var result []MsgPayload
+	for _, msg := range messages {
+		result = append(result, MsgPayload{
+			Uuid:       msg.Uuid,
+			FromUserId: msg.FromUserId,
+			ToId:       msg.ToId,
+			Content:    msg.Content,
+			Type:       msg.Type,
+			MediaType:  msg.MediaType,
+			CreatedAt:  msg.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return result, nil
 }

@@ -40,10 +40,13 @@ func main() {
 	userHandler := handler.NewUserHandler(userService)
 	wsHandler := handler.NewWSHandler(wsManager)
 	groupHandler := handler.NewGroupHandler(groupService)
+	chatHandler := handler.NewChatHandler(chatService)
 
 	r := gin.New()
 	r.Use(middleware.GinLogger())
 	r.Use(gin.Recovery())
+
+	r.Static("/static", "./static")
 
 	v1 := r.Group("/api/v1")
 	{
@@ -53,6 +56,8 @@ func main() {
 		v1.GET("/ws", wsHandler.Connect)
 		v1.POST("/group/create", groupHandler.Create)
 		v1.POST("/group/join", groupHandler.Join)
+		v1.POST("/chat/history", chatHandler.History)
+		v1.POST("/upload/avatar", userHandler.UploadAvatar)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {
