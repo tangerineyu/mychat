@@ -52,3 +52,34 @@ func (h *GroupHandler) Join(c *gin.Context) {
 	}
 	SendResponse(c, nil, gin.H{"message": "加入群聊成功"})
 }
+
+type GroupInfoReq struct {
+	GroupId string `json:"group_id" binding:"required"`
+}
+
+func (h *GroupHandler) GetGroupInfo(c *gin.Context) {
+	var req GroupInfoReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	group, err := h.groupService.GetGroupInfo(req.GroupId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, group)
+}
+func (h *GroupHandler) GetGroupMemberList(c *gin.Context) {
+	var req GroupInfoReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	members, err := h.groupService.GetGroupMembers(req.GroupId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, members)
+}

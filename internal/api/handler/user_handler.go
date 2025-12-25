@@ -113,3 +113,28 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 	}
 	SendResponse(c, nil, gin.H{"url": path})
 }
+
+type UpdateUserInfoReq struct {
+	NickName  string `json:"nickname"`
+	Avatar    string `json:"avatar"`
+	Signature string `json:"signature"`
+}
+
+func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
+	var req UpdateUserInfoReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("uid")
+	if userId == "" {
+		SendResponse(c, errno.ErrTokenInvalid, nil)
+		return
+	}
+	err := h.userService.UpdateUserInfo(userId, req.NickName, req.Avatar, req.Signature)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"message": "用户信息更新成功"})
+}

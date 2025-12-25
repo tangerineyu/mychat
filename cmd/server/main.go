@@ -32,7 +32,7 @@ func main() {
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
-	groupService := service.NewGroupService(groupRepo)
+	groupService := service.NewGroupService(groupRepo, userRepo)
 
 	wsManager := websocket.NewClientManager(chatService)
 	go wsManager.Start()
@@ -58,6 +58,9 @@ func main() {
 		v1.POST("/group/join", groupHandler.Join)
 		v1.POST("/chat/history", chatHandler.History)
 		v1.POST("/upload/avatar", userHandler.UploadAvatar)
+		v1.POST("/user/updateUserInfo", userHandler.UpdateUserInfo)
+		v1.POST("/group/getGroupInfo", groupHandler.GetGroupInfo)
+		v1.POST("/group/getGroupMemberList", groupHandler.GetGroupMemberList)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {

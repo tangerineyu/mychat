@@ -84,3 +84,15 @@ func (s *UserService) RefreshToken(refreshTokenStr string) (string, string, erro
 	}
 	return newAccess, newRefresh, nil
 }
+func (s *UserService) UpdateUserInfo(uuid, nickname, avatar, signature string) error {
+	user := &model.User{
+		Uuid: uuid,
+	}
+	if nickname != "" {
+		user.Nickname = nickname
+	}
+	if avatar != "" {
+		user.Avatar = avatar
+	}
+	return s.userRepo.UpdateUser(user)
+}

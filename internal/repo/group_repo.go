@@ -19,10 +19,17 @@ type GroupRepository interface {
 	AddMember(member *model.GroupMember) error
 	FindGroup(groupId string) (*model.Group, error)
 	IsMember(groupId, userId string) (bool, error)
+	GetGroupMembers(groupId string) ([]*model.GroupMember, error)
 }
 type groupRepository struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+func (r *groupRepository) GetGroupMembers(groupId string) ([]*model.GroupMember, error) {
+	var members []*model.GroupMember
+	err := r.db.Where("group_id = ?", groupId).Find(&members).Error
+	return members, err
 }
 
 func (r *groupRepository) CreateGroup(group *model.Group, ownerMember *model.GroupMember) error {

@@ -10,9 +10,33 @@ type UserRepository interface {
 	CreateUser(user *model.User) error
 	FindByPhone(phone string) (*model.User, error)
 	FindByUuid(uuid string) (*model.User, error)
+	FindUsersByIDs(ids []string) (map[string]*model.User, error)
+	UpdateUser(user *model.User) error
 }
 type userRepository struct {
 	db *gorm.DB
+}
+
+func (r *userRepository) UpdateUser(user *model.User) error {
+	return r.db.Model(&model.User{}).
+		Where("uuid = ?", user.Uuid).
+		Updates(user).Error
+}
+
+func (r *userRepository) FindUsersByIDs(ids []string) (map[string]*model.User, error) {
+	var users []*model.User
+	if len(ids) == 0 {
+		return make(map[string]*model.User), nil
+	}
+	err := r.db.Where("id IN (?)", ids).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	userMap := make(map[string]*model.User)
+	for _, user := range users {
+		userMap[user.Uuid] = user
+	}
+	return userMap, nil
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
