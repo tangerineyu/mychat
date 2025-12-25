@@ -1,0 +1,72 @@
+package handler
+
+import (
+	"my-chat/internal/service"
+	"my-chat/pkg/errno"
+
+	"github.com/gin-gonic/gin"
+)
+
+type ContactHandler struct {
+	contactService *service.ContactService
+}
+
+func NewContactHandler(contactService *service.ContactService) *ContactHandler {
+	return &ContactHandler{contactService: contactService}
+}
+
+type AddFriendReq struct {
+	TargetId string `json:"target_id" binding:"required"`
+	Msg      string `json:"msg"`
+}
+
+func (h *ContactHandler) AddFriend(c *gin.Context) {
+	var req AddFriendReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("uid")
+	err := h.contactService.AddFriendApply(userId, req.TargetId, req.Msg)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"message": "好友申请已发送"})
+}
+
+type AgreeReq struct {
+	ApplyId uint `json:"apply_id" binding:"required"`
+}
+
+func (h *ContactHandler) AgreeFriend(c *gin.Context) {
+	var req AgreeReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	err := h.contactService.AgreeFriend(req.ApplyId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"message": "已添加好友"})
+}
+func (h *ContactHandler) GetContactList(c *gin.Context) {
+	userId := c.Query("uid")
+	list, err := h.contactService.GetContactList(userId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, list)
+}
+func (h *ContactHandler) GetApplyList(c *gin.Context) {
+	userId := c.Query("uid")
+	list, err := h.contactService.GetApplyList(userId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, list)
+}
