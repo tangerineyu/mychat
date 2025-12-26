@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"my-chat/internal/mq"
+	"my-chat/internal/repo"
 	"my-chat/internal/service"
 	"my-chat/pkg/zlog"
 	"sync"
@@ -20,15 +21,17 @@ type ClientManager struct {
 	rwLock sync.RWMutex
 	//注入ChatService, 用于存消息
 	chatService *service.ChatService
+	sessionRepo repo.SessionRepository
 }
 
-func NewClientManager(chatService *service.ChatService) *ClientManager {
+func NewClientManager(chatService *service.ChatService, sessionRepo repo.SessionRepository) *ClientManager {
 	return &ClientManager{
 		Register:    make(chan *Client),
 		Unregister:  make(chan *Client),
 		Broadcast:   make(chan []byte),
 		Clients:     make(map[string]*Client),
 		chatService: chatService,
+		sessionRepo: sessionRepo,
 	}
 }
 func (manager *ClientManager) Start() {

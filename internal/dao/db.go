@@ -32,6 +32,7 @@ func InitDB() {
 		&model.Message{},
 		&model.Contact{},
 		&model.ContactApply{},
+		&model.Session{},
 	)
 	if err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)

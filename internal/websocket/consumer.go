@@ -3,8 +3,10 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"my-chat/internal/model"
 	"my-chat/internal/mq"
 	"my-chat/pkg/zlog"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -43,15 +45,39 @@ func (manager *ClientManager) StartConsumer() {
 				zlog.Error("Save Message Error", zap.Error(err))
 				continue
 			}
-
+			currentTs := time.Now().Unix()
 			if chatData.Type == 1 {
 				manager.sendToUser(chatData.ReceiverId, jsonBytes)
 				manager.sendToUser(chatData.SendId, jsonBytes)
+
+				manager.sessionRepo.UpsertSession(&model.Session{
+					UserId:   chatData.SendId,
+					TargetId: chatData.ReceiverId,
+					Type:     1,
+					LastMsg:  chatData.Content,
+					LastTime: currentTs,
+				})
+				manager.sessionRepo.UpsertSession(&model.Session{
+					UserId:    chatData.ReceiverId,
+					TargetId:  chatData.SendId,
+					Type:      1,
+					LastMsg:   chatData.Content,
+					LastTime:  currentTs,
+					UnreadCnt: 1,
+				})
+
 			} else if chatData.Type == 2 {
 				memberIds, _ := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
 				for _, memberId := range memberIds {
 					manager.sendToUser(memberId, jsonBytes)
 				}
+				manager.sessionRepo.UpsertSession(&model.Session{
+					UserId:   chatData.SendId,
+					TargetId: chatData.ReceiverId,
+					Type:     2,
+					LastMsg:  "[群消息]" + chatData.Content,
+					LastTime: currentTs,
+				})
 			}
 		}
 	}

@@ -30,13 +30,15 @@ func main() {
 	msgRepo := repo.NewMessageRepository(dao.DB)
 	groupRepo := repo.NewGroupRepository(dao.DB, dao.RDB)
 	contactRepo := repo.NewContactRepository(dao.DB)
+	sessionRepo := repo.NewSessionRepository(dao.DB)
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
 	groupService := service.NewGroupService(groupRepo, userRepo)
 	contactService := service.NewContactService(contactRepo, userRepo)
+	sessionService := service.NewSessionService(sessionRepo, groupRepo, userRepo)
 
-	wsManager := websocket.NewClientManager(chatService)
+	wsManager := websocket.NewClientManager(chatService, sessionRepo)
 	go wsManager.Start()
 	go wsManager.StartConsumer()
 	userHandler := handler.NewUserHandler(userService)
@@ -44,6 +46,7 @@ func main() {
 	groupHandler := handler.NewGroupHandler(groupService)
 	chatHandler := handler.NewChatHandler(chatService)
 	contactHandler := handler.NewContactHandler(contactService)
+	sessionHandler := handler.NewSessionHandler(sessionService)
 
 	r := gin.New()
 	r.Use(middleware.GinLogger())
@@ -68,6 +71,7 @@ func main() {
 		v1.POST("/contact/agree", contactHandler.AgreeFriend)
 		v1.POST("/contact/list", contactHandler.GetContactList)
 		v1.POST("/contact/applyList", contactHandler.GetApplyList)
+		v1.POST("/session/list", sessionHandler.List)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {
