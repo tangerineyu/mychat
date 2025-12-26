@@ -70,3 +70,38 @@ func (h *ContactHandler) GetApplyList(c *gin.Context) {
 	}
 	SendResponse(c, nil, list)
 }
+
+type RefuseReq struct {
+	ApplyId uint `json:"apply_id" binding:"required"`
+}
+
+func (h *ContactHandler) RefuseApply(c *gin.Context) {
+	var req RefuseReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	if err := h.contactService.RefuseApply(req.ApplyId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"msg": "已拒绝"})
+}
+
+type DeleteContact struct {
+	TargetId string `json:"target_id" binding:"required"`
+}
+
+func (h *ContactHandler) DeleteContact(c *gin.Context) {
+	var req DeleteContact
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("uid")
+	if err := h.contactService.RemoveFriend(userId, req.TargetId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"message": "删除成功"})
+}

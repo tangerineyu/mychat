@@ -31,6 +31,12 @@ func (s *ContactService) AddFriendApply(userId, targetId, msg string) error {
 	}
 	return s.contactRepo.CreateApply(apply)
 }
+func (s *ContactService) RefuseApply(applyId uint) error {
+	return s.contactRepo.UpdateApplyStatus(applyId, "2")
+}
+func (s *ContactService) RemoveFriend(userId, targetId string) error {
+	return s.contactRepo.DeleteFriend(userId, targetId)
+}
 func (s *ContactService) GetApplyList(userId string) ([]*model.ContactApply, error) {
 	return s.contactRepo.GetApplyList(userId)
 }

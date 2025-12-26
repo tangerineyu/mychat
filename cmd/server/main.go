@@ -72,6 +72,8 @@ func main() {
 		v1.POST("/contact/list", contactHandler.GetContactList)
 		v1.POST("/contact/applyList", contactHandler.GetApplyList)
 		v1.POST("/session/list", sessionHandler.List)
+		v1.POST("/contact/refuseContactApply", contactHandler.RefuseApply)
+		v1.POST("/contact/deleteContact", contactHandler.DeleteContact)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {
