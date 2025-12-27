@@ -31,12 +31,14 @@ func main() {
 	groupRepo := repo.NewGroupRepository(dao.DB, dao.RDB)
 	contactRepo := repo.NewContactRepository(dao.DB)
 	sessionRepo := repo.NewSessionRepository(dao.DB)
+	adminRepo := repo.NewAdminRepository(dao.DB)
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
 	groupService := service.NewGroupService(groupRepo, userRepo)
 	contactService := service.NewContactService(contactRepo, userRepo)
 	sessionService := service.NewSessionService(sessionRepo, groupRepo, userRepo)
+	adminService := service.NewAdminService(adminRepo)
 
 	wsManager := websocket.NewClientManager(chatService, sessionRepo)
 	go wsManager.Start()
@@ -47,6 +49,7 @@ func main() {
 	chatHandler := handler.NewChatHandler(chatService)
 	contactHandler := handler.NewContactHandler(contactService)
 	sessionHandler := handler.NewSessionHandler(sessionService)
+	adminHandler := handler.NewAdminHandler(adminService)
 
 	r := gin.New()
 	r.Use(middleware.GinLogger())
@@ -78,6 +81,19 @@ func main() {
 		v1.POST("/group/leaveGroup", groupHandler.LeaveGroup)
 		v1.POST("/group/kickGroupMember", groupHandler.KickGroupMember)
 		v1.POST("/group/dismissGroup", groupHandler.DismissGroup)
+
+		v1.POST("/contact/blackContact", contactHandler.BlackContact)
+		v1.POST("/contact/cancelBlackContact", contactHandler.UnBlackContact)
+
+		// Admin User
+		v1.POST("/user/getUserInfoList", adminHandler.GetUserList)
+		v1.POST("/user/disableUsers", adminHandler.DisableUser)
+		v1.POST("/user/ableUsers", adminHandler.AbleUser)
+
+		// Admin Group
+		v1.POST("/group/getGroupInfoList", adminHandler.GetGroupList)
+		v1.POST("/group/disableGroup", adminHandler.DisableGroup)
+		v1.POST("/group/ableGroups", adminHandler.AbleGroup)
 	}
 	zlog.Info("服务器启动成功", zap.String("port", "8080"))
 	if err := r.Run(":8080"); err != nil {

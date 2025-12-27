@@ -14,10 +14,17 @@ type ContactRepository interface {
 	AddFriend(applyId uint, c1, c2 *model.Contact) error
 	UpdateApplyStatus(applyId uint, status string) error
 	DeleteFriend(ownerId, targetId string) error
+	UpdateContactType(ownerId, targetId string, typeInt int) error
 }
 
 type contactRepository struct {
 	db *gorm.DB
+}
+
+func (c *contactRepository) UpdateContactType(ownerId, targetId string, typeInt int) error {
+	return c.db.Model(&model.Contact{}).
+		Where("owner_id = ? AND target_id = ?", ownerId, targetId).
+		Update("type", typeInt).Error
 }
 
 func (c *contactRepository) DeleteFriend(ownerId, targetId string) error {

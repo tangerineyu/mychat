@@ -87,3 +87,9 @@ func (s *ContactService) GetContactList(userId string) ([]map[string]interface{}
 	}
 	return result, nil
 }
+func (s *ContactService) BlackContact(userId, targetId string) error {
+	return s.contactRepo.UpdateContactType(userId, targetId, model.ContactTypeBlack)
+}
+func (s *ContactService) UnBlackContact(userId, targetId string) error {
+	return s.contactRepo.UpdateContactType(userId, targetId, model.ContactTypeFriend)
+}

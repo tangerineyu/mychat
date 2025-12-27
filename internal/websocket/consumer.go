@@ -57,7 +57,7 @@ func (manager *ClientManager) StartConsumer() {
 					LastMsg:  chatData.Content,
 					LastTime: currentTs,
 				})
-				manager.sessionRepo.UpsertSession(&model.Session{
+				err := manager.sessionRepo.UpsertSession(&model.Session{
 					UserId:    chatData.ReceiverId,
 					TargetId:  chatData.SendId,
 					Type:      1,
@@ -65,19 +65,25 @@ func (manager *ClientManager) StartConsumer() {
 					LastTime:  currentTs,
 					UnreadCnt: 1,
 				})
+				if err != nil {
+					return
+				}
 
 			} else if chatData.Type == 2 {
 				memberIds, _ := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
 				for _, memberId := range memberIds {
 					manager.sendToUser(memberId, jsonBytes)
 				}
-				manager.sessionRepo.UpsertSession(&model.Session{
+				err := manager.sessionRepo.UpsertSession(&model.Session{
 					UserId:   chatData.SendId,
 					TargetId: chatData.ReceiverId,
 					Type:     2,
 					LastMsg:  "[群消息]" + chatData.Content,
 					LastTime: currentTs,
 				})
+				if err != nil {
+					return
+				}
 			}
 		}
 	}

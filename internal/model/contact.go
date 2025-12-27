@@ -2,6 +2,12 @@ package model
 
 import "gorm.io/gorm"
 
+const (
+	ContactTypeFriend = 1 //好友
+	ContactTypeGroup  = 2 //群组
+	ContactTypeBlack  = 3 //拉黑
+)
+
 type Contact struct {
 	gorm.Model
 	OwnerId  string `gorm:"type:varchar(64);index;not null;comment:谁的通讯录"`

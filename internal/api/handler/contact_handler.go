@@ -105,3 +105,34 @@ func (h *ContactHandler) DeleteContact(c *gin.Context) {
 	}
 	SendResponse(c, nil, gin.H{"message": "删除成功"})
 }
+
+type BlackReq struct {
+	TargetId string `json:"target_id" binding:"required"`
+}
+
+func (h *ContactHandler) BlackContact(c *gin.Context) {
+	var req BlackReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("uid")
+	if err := h.contactService.BlackContact(userId, req.TargetId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"message": "已经拉黑"})
+}
+func (h *ContactHandler) UnBlackContact(c *gin.Context) {
+	var req BlackReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("uid")
+	if err := h.contactService.UnBlackContact(userId, req.TargetId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"msg": "已经移除黑名单"})
+}
