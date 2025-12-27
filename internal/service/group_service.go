@@ -115,3 +115,36 @@ func (s *GroupService) GetGroupMembers(groupId string) ([]GroupMemberResp, error
 	}
 	return resp, nil
 }
+func (s *GroupService) LoadMyJoinedGroup(userId string) (*model.Group, error) {
+	return s.groupRepo.FindGroup(userId)
+}
+func (s *GroupService) LeaveGroup(groupId, userId string) error {
+	group, err := s.groupRepo.FindGroup(groupId)
+	if err != nil {
+		return err
+	}
+	if group.OwnerId == userId {
+		return errno.New(30005, "群主不能直接退群，需要转让或解散群")
+	}
+	return s.groupRepo.RemoveMember(groupId, userId)
+}
+func (s *GroupService) KickMember(operatorId, groupId, userId string) error {
+	group, err := s.groupRepo.FindGroup(groupId)
+	if err != nil {
+		return err
+	}
+	if group.OwnerId != operatorId {
+		return errno.New(30006, "权限不足，只有群主可以移除")
+	}
+	return s.groupRepo.RemoveMember(groupId, userId)
+}
+func (s *GroupService) DismissGroup(operatorId, groupId string) error {
+	group, err := s.groupRepo.FindGroup(groupId)
+	if err != nil {
+		return err
+	}
+	if group.OwnerId != operatorId {
+		return errno.New(30006, "权限不足，只有群主可以移除")
+	}
+	return s.groupRepo.DeleteGroup(groupId)
+}

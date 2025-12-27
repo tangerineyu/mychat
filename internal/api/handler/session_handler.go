@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"my-chat/internal/service"
 	"my-chat/pkg/errno"
+
+	"github.com/gin-gonic/gin"
 )
 
 type SessionHandler struct {

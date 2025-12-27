@@ -20,10 +20,49 @@ type GroupRepository interface {
 	FindGroup(groupId string) (*model.Group, error)
 	IsMember(groupId, userId string) (bool, error)
 	GetGroupMembers(groupId string) ([]*model.GroupMember, error)
+	GetUserJoinedGroups(userId string) ([]*model.Group, error)
+	RemoveMember(groupId, userId string) error
+	DeleteGroup(groupId string) error
 }
 type groupRepository struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+func (r *groupRepository) DeleteGroup(groupId string) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("uuid = ?", groupId).Delete(&model.Group{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("group_id = ?", groupId).Delete(&model.GroupMember{}).Error; err != nil {
+			return err
+		}
+		cacheKey := fmt.Sprintf("im:group:members:%s", groupId)
+		r.rdb.Del(context.Background(), cacheKey)
+		return nil
+	})
+}
+
+func (r *groupRepository) RemoveMember(groupId, userId string) error {
+	err := r.db.Where("group_id = ? and user_id = ?", groupId, userId).Delete(&model.GroupMember{}).Error
+	if err != nil {
+		return err
+	}
+	cacheKey := fmt.Sprintf("im:group:members:%s", groupId)
+	r.rdb.Del(context.Background(), cacheKey)
+	return nil
+}
+
+func (r *groupRepository) GetUserJoinedGroups(userId string) ([]*model.Group, error) {
+	var groups []*model.Group
+	//select g.* from groups g join group_members m on g.uuid = m.group_id where m.userid = ?
+	err := r.db.Table("groups").
+		Select("groups.*").
+		Joins("JOIN group_members ON group_members.group_id = group.uuid").
+		Where("group_members.user_id = ?", userId).
+		Find(&groups).Error
+	return groups, err
+
 }
 
 func (r *groupRepository) GetGroupMembers(groupId string) ([]*model.GroupMember, error) {

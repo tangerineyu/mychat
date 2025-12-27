@@ -83,3 +83,57 @@ func (h *GroupHandler) GetGroupMemberList(c *gin.Context) {
 	}
 	SendResponse(c, nil, members)
 }
+func (h *GroupHandler) LoadMyJoinedGroup(c *gin.Context) {
+	userId := c.Query("user_id")
+	groups, err := h.groupService.LoadMyJoinedGroup(userId)
+	if err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, groups)
+}
+
+type GroupOperationReq struct {
+	GroupId  string `json:"group_id" binding:"required"`
+	TargetId string `json:"target_id"`
+}
+
+func (h *GroupHandler) LeaveGroup(c *gin.Context) {
+	var req GroupOperationReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("user_id")
+	if err := h.groupService.LeaveGroup(req.GroupId, userId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"msg": "退群成功"})
+}
+func (h *GroupHandler) KickGroupMember(c *gin.Context) {
+	var req GroupOperationReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("user_id")
+	if err := h.groupService.KickMember(userId, req.GroupId, req.TargetId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"msg": "移除成功"})
+}
+func (h *GroupHandler) DismissGroup(c *gin.Context) {
+	var req GroupOperationReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		SendResponse(c, errno.ErrBind, nil)
+		return
+	}
+	userId := c.Query("user_id")
+	if err := h.groupService.DismissGroup(userId, req.GroupId); err != nil {
+		SendResponse(c, err, nil)
+		return
+	}
+	SendResponse(c, nil, gin.H{"msg": "群聊已解散"})
+}
