@@ -77,3 +77,6 @@ func (s *ChatService) GetHistory(userId, targetId string, chatType int) ([]MsgPa
 	}
 	return result, nil
 }
+func (s *ChatService) BatchSave(messages []*model.Message) error {
+	return s.msgRepo.BatchCreate(messages)
+}

@@ -18,6 +18,7 @@ type GroupRepository interface {
 	CreateGroup(group *model.Group, ownerMember *model.GroupMember) error
 	AddMember(member *model.GroupMember) error
 	FindGroup(groupId string) (*model.Group, error)
+	FindGroupsByIds(groupIds []string) (map[string]*model.Group, error)
 	IsMember(groupId, userId string) (bool, error)
 	GetGroupMembers(groupId string) ([]*model.GroupMember, error)
 	GetUserJoinedGroups(userId string) ([]*model.Group, error)
@@ -27,6 +28,22 @@ type GroupRepository interface {
 type groupRepository struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+func (r *groupRepository) FindGroupsByIds(groupIds []string) (map[string]*model.Group, error) {
+	var groups []*model.Group
+	if len(groupIds) == 0 {
+		return make(map[string]*model.Group), nil
+	}
+	err := r.db.Where("group_id IN (?)", groupIds).Find(&groups).Error
+	if err != nil {
+		return nil, err
+	}
+	groupMap := make(map[string]*model.Group)
+	for _, group := range groups {
+		groupMap[group.Uuid] = group
+	}
+	return groupMap, nil
 }
 
 func (r *groupRepository) DeleteGroup(groupId string) error {

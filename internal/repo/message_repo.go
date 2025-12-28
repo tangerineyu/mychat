@@ -9,9 +9,17 @@ import (
 type MessageRepository interface {
 	CreateMessage(message *model.Message) error
 	GetMessages(userId, targetId string, chatType int, offset, limit int) ([]*model.Message, error)
+	BatchCreate(messages []*model.Message) error
 }
 type messageRepository struct {
 	db *gorm.DB
+}
+
+func (r *messageRepository) BatchCreate(messages []*model.Message) error {
+	if len(messages) == 0 {
+		return nil
+	}
+	return r.db.Create(messages).Error
 }
 
 func NewMessageRepository(db *gorm.DB) MessageRepository {

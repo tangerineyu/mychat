@@ -43,21 +43,27 @@ func (s *SessionService) GetUserSessions(userId string) ([]SessionDto, error) {
 			groupIds = append(groupIds, session.TargetId)
 		}
 	}
+	userMap, err := s.userRepo.FindUsersByIDs(userIds)
+	if err != nil {
+		return nil, err
+	}
+	groupMap, err := s.groupRepo.FindGroupsByIds(groupIds)
+	if err != nil {
+		return nil, err
+	}
 	var result []SessionDto
 	for _, sess := range sessions {
 		name := "未知"
 		avatar := ""
 		if sess.Type == 1 {
-			u, _ := s.userRepo.FindByUuid(sess.TargetId)
-			if u != nil {
-				name = u.Nickname
-				avatar = u.Avatar
+			if user, ok := userMap[sess.TargetId]; ok {
+				name = user.Nickname
+				avatar = user.Avatar
 			}
 		} else {
-			g, _ := s.groupRepo.FindGroup(sess.TargetId)
-			if g != nil {
-				name = g.Name
-				avatar = g.Avatar
+			if group, ok := groupMap[sess.TargetId]; ok {
+				name = group.Name
+				avatar = group.Avatar
 			}
 		}
 		result = append(result, SessionDto{
