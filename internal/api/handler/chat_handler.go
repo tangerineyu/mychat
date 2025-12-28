@@ -26,7 +26,13 @@ func (h *ChatHandler) History(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	currentUserId := c.Query("uid")
+	//currentUserId := c.Query("uid")
+	val, exists := c.Get("userId")
+	if !exists {
+		SendResponse(c, errno.ErrTokenInvalid, nil)
+		return
+	}
+	currentUserId := val.(string)
 	if currentUserId == "" {
 		SendResponse(c, errno.ErrTokenInvalid, nil)
 		return

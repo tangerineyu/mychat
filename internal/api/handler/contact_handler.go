@@ -26,7 +26,8 @@ func (h *ContactHandler) AddFriend(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("uid")
+	//userId := c.Query("uid")
+	userId := c.GetString("userId")
 	err := h.contactService.AddFriendApply(userId, req.TargetId, req.Msg)
 	if err != nil {
 		SendResponse(c, err, nil)
@@ -53,7 +54,7 @@ func (h *ContactHandler) AgreeFriend(c *gin.Context) {
 	SendResponse(c, nil, gin.H{"message": "已添加好友"})
 }
 func (h *ContactHandler) GetContactList(c *gin.Context) {
-	userId := c.Query("uid")
+	userId := c.GetString("userId")
 	list, err := h.contactService.GetContactList(userId)
 	if err != nil {
 		SendResponse(c, err, nil)
@@ -62,7 +63,7 @@ func (h *ContactHandler) GetContactList(c *gin.Context) {
 	SendResponse(c, nil, list)
 }
 func (h *ContactHandler) GetApplyList(c *gin.Context) {
-	userId := c.Query("uid")
+	userId := c.GetString("userId")
 	list, err := h.contactService.GetApplyList(userId)
 	if err != nil {
 		SendResponse(c, err, nil)
@@ -98,7 +99,7 @@ func (h *ContactHandler) DeleteContact(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("uid")
+	userId := c.GetString("userId")
 	if err := h.contactService.RemoveFriend(userId, req.TargetId); err != nil {
 		SendResponse(c, err, nil)
 		return
@@ -116,7 +117,7 @@ func (h *ContactHandler) BlackContact(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("uid")
+	userId := c.GetString("userString")
 	if err := h.contactService.BlackContact(userId, req.TargetId); err != nil {
 		SendResponse(c, err, nil)
 		return
@@ -129,7 +130,7 @@ func (h *ContactHandler) UnBlackContact(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("uid")
+	userId := c.GetString("userId")
 	if err := h.contactService.UnBlackContact(userId, req.TargetId); err != nil {
 		SendResponse(c, err, nil)
 		return

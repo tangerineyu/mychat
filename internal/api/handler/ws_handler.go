@@ -27,12 +27,11 @@ func NewWSHandler(manager *websocket.ClientManager) *WSHandler {
 	return &WSHandler{manager: manager}
 }
 func (h *WSHandler) Connect(c *gin.Context) {
-	token := c.Query("token")
-	if token == "" {
+	userId := c.GetString("userId")
+	if userId == "" {
 		SendResponse(c, errno.ErrTokenInvalid, nil)
 		return
 	}
-	userId := token
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		zlog.Error("webSocket upgrade failed", zap.Error(err))

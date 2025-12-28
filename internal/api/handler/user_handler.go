@@ -126,11 +126,13 @@ func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("uid")
-	if userId == "" {
-		SendResponse(c, errno.ErrTokenInvalid, nil)
+	//userId := c.Query("uid")
+	value, exists := c.Get("userId")
+	if !exists {
+		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
+	userId := value.(string)
 	err := h.userService.UpdateUserInfo(userId, req.NickName, req.Avatar, req.Signature)
 	if err != nil {
 		SendResponse(c, err, nil)

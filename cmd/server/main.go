@@ -62,34 +62,41 @@ func main() {
 		v1.POST("/register", userHandler.Register)
 		v1.POST("/login", userHandler.Login)
 		v1.POST("/refresh-token", userHandler.RefreshToken)
+
+	}
+	authGroup := v1.Group("/")
+	authGroup.Use(middleware.Auth())
+	{
 		v1.GET("/ws", wsHandler.Connect)
-		v1.POST("/group/create", groupHandler.Create)
-		v1.POST("/group/join", groupHandler.Join)
-		v1.POST("/chat/history", chatHandler.History)
+		//用户相关
 		v1.POST("/upload/avatar", userHandler.UploadAvatar)
 		v1.POST("/user/updateUserInfo", userHandler.UpdateUserInfo)
+		//群组相关
+		v1.POST("/group/create", groupHandler.Create)
+		v1.POST("/group/join", groupHandler.Join)
 		v1.POST("/group/getGroupInfo", groupHandler.GetGroupInfo)
 		v1.POST("/group/getGroupMemberList", groupHandler.GetGroupMemberList)
-		v1.POST("/contact/add", contactHandler.AddFriend)
-		v1.POST("/contact/agree", contactHandler.AgreeFriend)
-		v1.POST("/contact/list", contactHandler.GetContactList)
-		v1.POST("/contact/applyList", contactHandler.GetApplyList)
-		v1.POST("/session/list", sessionHandler.List)
-		v1.POST("/contact/refuseContactApply", contactHandler.RefuseApply)
-		v1.POST("/contact/deleteContact", contactHandler.DeleteContact)
 		v1.POST("/group/loadMyGroup", groupHandler.LoadMyJoinedGroup)
 		v1.POST("/group/leaveGroup", groupHandler.LeaveGroup)
 		v1.POST("/group/kickGroupMember", groupHandler.KickGroupMember)
 		v1.POST("/group/dismissGroup", groupHandler.DismissGroup)
-
+		//联系人相关
+		v1.POST("/contact/add", contactHandler.AddFriend)
+		v1.POST("/contact/agree", contactHandler.AgreeFriend)
+		v1.POST("/contact/list", contactHandler.GetContactList)
+		v1.POST("/contact/applyList", contactHandler.GetApplyList)
+		v1.POST("/contact/refuseContactApply", contactHandler.RefuseApply)
+		v1.POST("/contact/deleteContact", contactHandler.DeleteContact)
 		v1.POST("/contact/blackContact", contactHandler.BlackContact)
 		v1.POST("/contact/cancelBlackContact", contactHandler.UnBlackContact)
-
+		//聊天历史记录
+		v1.POST("/chat/history", chatHandler.History)
+		//会话接口
+		v1.POST("/session/list", sessionHandler.List)
 		// Admin User
 		v1.POST("/user/getUserInfoList", adminHandler.GetUserList)
 		v1.POST("/user/disableUsers", adminHandler.DisableUser)
 		v1.POST("/user/ableUsers", adminHandler.AbleUser)
-
 		// Admin Group
 		v1.POST("/group/getGroupInfoList", adminHandler.GetGroupList)
 		v1.POST("/group/disableGroup", adminHandler.DisableGroup)

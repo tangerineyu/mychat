@@ -15,7 +15,7 @@ func NewSessionHandler(sessionService *service.SessionService) *SessionHandler {
 	return &SessionHandler{sessionService: sessionService}
 }
 func (h *SessionHandler) List(c *gin.Context) {
-	userId := c.Query("uid")
+	userId := c.GetString("userId")
 	if userId == "" {
 		SendResponse(c, errno.ErrTokenInvalid, nil)
 		return

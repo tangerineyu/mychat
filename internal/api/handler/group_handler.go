@@ -84,7 +84,7 @@ func (h *GroupHandler) GetGroupMemberList(c *gin.Context) {
 	SendResponse(c, nil, members)
 }
 func (h *GroupHandler) LoadMyJoinedGroup(c *gin.Context) {
-	userId := c.Query("user_id")
+	userId := c.GetString("userId")
 	groups, err := h.groupService.LoadMyJoinedGroup(userId)
 	if err != nil {
 		SendResponse(c, err, nil)
@@ -104,7 +104,7 @@ func (h *GroupHandler) LeaveGroup(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("user_id")
+	userId := c.GetString("userId")
 	if err := h.groupService.LeaveGroup(req.GroupId, userId); err != nil {
 		SendResponse(c, err, nil)
 		return
@@ -117,7 +117,7 @@ func (h *GroupHandler) KickGroupMember(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("user_id")
+	userId := c.GetString("userId")
 	if err := h.groupService.KickMember(userId, req.GroupId, req.TargetId); err != nil {
 		SendResponse(c, err, nil)
 		return
@@ -130,7 +130,7 @@ func (h *GroupHandler) DismissGroup(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.Query("user_id")
+	userId := c.GetString("userId")
 	if err := h.groupService.DismissGroup(userId, req.GroupId); err != nil {
 		SendResponse(c, err, nil)
 		return
