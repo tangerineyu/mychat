@@ -5,6 +5,7 @@ import (
 	"my-chat/internal/model"
 	"my-chat/internal/repo"
 	"my-chat/pkg/zlog"
+	"sort"
 
 	"go.uber.org/zap"
 )
@@ -54,52 +55,67 @@ func (s *SessionService) GetUserSessions(userId string) ([]SessionDto, error) {
 			zap.String("userId", userId))
 		return result, nil
 	}
+	//获取私聊会话
+	//可能返回群会话，在下面遍历的时候过滤掉
 	sessions, err := s.sessionRepo.GetList(userId)
 	if err != nil {
 		return nil, err
 	}
-	var userIds []string
-	var groupIds []string
-	for _, session := range sessions {
-		if session.Type == 1 {
-			userIds = append(userIds, session.TargetId)
-		} else {
-			groupIds = append(groupIds, session.TargetId)
-		}
-	}
-	userMap, err := s.userRepo.FindUsersByIDs(userIds)
+	//获取群聊会话
+	groupList, err := s.groupRepo.GetUserJoinedGroups(userId)
 	if err != nil {
 		return nil, err
 	}
-	groupMap, err := s.groupRepo.FindGroupsByIds(groupIds)
+	var friendIds []string
+	//var groupIds []string
+	//移除了groupIds的收集，直接调用了GetUserJoinedGroups，这个方法返回的就是Group结构体
+	//里面已经包含了Name， Avatar，LAstMsg，LastTime
+	for _, session := range sessions {
+		if session.Type == 1 {
+			friendIds = append(friendIds, session.TargetId)
+		}
+	}
+	userMap, err := s.userRepo.FindUsersByIDs(friendIds)
+	//移除了groupMap，直接遍历groupList转换为SessionDto就可以
 	if err != nil {
 		return nil, err
 	}
 	var result []SessionDto
 	for _, sess := range sessions {
-		name := "未知"
-		avatar := ""
 		if sess.Type == 1 {
+			name := "未知"
+			avatar := ""
 			if user, ok := userMap[sess.TargetId]; ok {
 				name = user.Nickname
 				avatar = user.Avatar
 			}
-		} else {
-			if group, ok := groupMap[sess.TargetId]; ok {
-				name = group.Name
-				avatar = group.Avatar
-			}
+			result = append(result, SessionDto{
+				TargetId:  sess.TargetId,
+				Type:      1,
+				Name:      name,
+				Avatar:    avatar,
+				LastMsg:   sess.LastMsg,
+				LastTime:  sess.LastTime,
+				UnreadCnt: sess.UnreadCnt,
+			})
 		}
+	}
+	//处理群聊
+	for _, group := range groupList {
 		result = append(result, SessionDto{
-			TargetId:  sess.TargetId,
-			Type:      sess.Type,
-			Name:      name,
-			Avatar:    avatar,
-			LastMsg:   sess.LastMsg,
-			LastTime:  sess.LastTime,
-			UnreadCnt: sess.UnreadCnt,
+			TargetId:  group.Uuid,
+			Type:      2,
+			Name:      group.Name,
+			Avatar:    group.Avatar,
+			LastMsg:   group.LastMsg,
+			LastTime:  group.LastTime,
+			UnreadCnt: 0,
 		})
 	}
+	//排序，将私聊与群聊混合在一起，按照时间最新的排序
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].LastTime > result[j].LastTime
+	})
 	//查完mysql，异步填回redis
 	go func() {
 		for _, dto := range result {

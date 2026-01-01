@@ -22,6 +22,7 @@ type ClientManager struct {
 	//注入ChatService, 用于存消息
 	chatService *service.ChatService
 	sessionRepo repo.SessionRepository
+	groupRepo   repo.GroupRepository
 }
 
 func NewClientManager(chatService *service.ChatService, sessionRepo repo.SessionRepository) *ClientManager {

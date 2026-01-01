@@ -24,10 +24,21 @@ type GroupRepository interface {
 	GetUserJoinedGroups(userId string) ([]*model.Group, error)
 	RemoveMember(groupId, userId string) error
 	DeleteGroup(groupId string) error
+	UpdateGroupLastMsg(groupId string, content string, time int64) error
 }
 type groupRepository struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+// 实现更新群最新消息
+func (r *groupRepository) UpdateGroupLastMsg(groupId string, content string, lastTime int64) error {
+	return r.db.Model(&model.Group{}).
+		Where("uuid = ?", groupId).
+		Updates(map[string]interface{}{
+			"last_msg":  content,
+			"last_time": lastTime,
+		}).Error
 }
 
 func (r *groupRepository) FindGroupsByIds(groupIds []string) (map[string]*model.Group, error) {

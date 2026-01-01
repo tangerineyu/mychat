@@ -114,7 +114,7 @@ func (manager *ClientManager) StartConsumer() {
 					return
 				}
 			} else if chatData.Type == 2 {
-				memberIds, err := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
+				/**memberIds, err := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
 				if err != nil {
 					zlog.Error("Get group member id error", zap.Error(err))
 					return
@@ -138,7 +138,17 @@ func (manager *ClientManager) StartConsumer() {
 					})
 					manager.sendToUser(memberId, jsonBytes)
 					_ = manager.sessionRepo.DeleteSessionCache(memberId)
+				}**/
+				err := manager.groupRepo.UpdateGroupLastMsg(chatData.ReceiverId, "群消息"+chatData.Content, currentTs)
+				if err != nil {
+					zlog.Error("update group last msg failed", zap.Error(err))
 				}
+				memberIds, _ := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
+				jsonBytes, _ := json.Marshal(chatData)
+				for _, memberId := range memberIds {
+					manager.sendToUser(memberId, jsonBytes)
+				}
+
 			}
 			//now := time.Now()
 			msgModel := &model.Message{
