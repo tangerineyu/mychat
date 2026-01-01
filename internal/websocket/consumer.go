@@ -73,6 +73,10 @@ func (manager *ClientManager) StartConsumer() {
 				zap.String("发送者", chatData.SendId),
 				zap.String("接收者", chatData.ReceiverId),
 				zap.String("内容", chatData.Content))
+			//确保消息里面有uuid，没有就生成
+			if chatData.Uuid == "" {
+				chatData.Uuid = "M" + uuid.New().String()
+			}
 			jsonBytes, _ := json.Marshal(chatData)
 			if chatData.Type == 1 {
 				manager.sendToUser(chatData.ReceiverId, jsonBytes)

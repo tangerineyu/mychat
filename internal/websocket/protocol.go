@@ -10,6 +10,7 @@ const (
 	ActionLogin       Action = "login"        //登录
 	ActionChatMessage Action = "chat_message" //聊天消息
 	ActionReCall      Action = "recall"       //撤回
+	ActionAck         Action = "ack"
 )
 
 type Message struct {
@@ -24,4 +25,9 @@ type ChatMessageContent struct {
 	ReceiverId string `json:"receiver_id"` //接收者
 	Type       int    `json:"type"`        //1:文本， 2：图片
 	Content    string `json:"content"`     //文本内容 or 图片内容
+	Uuid       string `json:"uuid"`        //ACK
+}
+type AckMessage struct {
+	MsgId  string `json:"msg_id"`
+	UserId string `json:"user_id"`
 }

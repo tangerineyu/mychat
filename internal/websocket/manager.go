@@ -72,51 +72,44 @@ func (manager *ClientManager) Start() {
 
 // 处理消息分发
 func (manager *ClientManager) dispatch(message []byte) {
-	var rawMsg Message
+	/**var rawMsg Message
 	if err := json.Unmarshal(message, &rawMsg); err != nil {
 		zlog.Error("Failed to unmarshal message", zap.String("message", string(message)), zap.Error(err))
 		return
 	}
 	if rawMsg.Action == ActionChatMessage {
-		/**var chatData ChatMessageContent
-		if err := json.Unmarshal(rawMsg.Content, &chatData); err != nil {
-			zlog.Error("Content Parse Error", zap.Error(err))
-			return
-		}
-		//调用Service存消息， 获取标准发送格式
-		jsonBytes, err := manager.chatService.SaveAndFactory(
-			chatData.SendId,
-			chatData.ReceiverId,
-			chatData.Content,
-			chatData.Type,
-			1,
-		)
-		if err != nil {
-			zlog.Error("SaveAndFactory Error", zap.Error(err))
-			return
-		}
-		//单聊
-		if chatData.Type == 1 {
-			manager.sendToUser(chatData.ReceiverId, jsonBytes)
-			manager.sendToUser(chatData.SendId, jsonBytes)
-		} else if chatData.Type == 2 {
-			memberIds, err := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
-			if err != nil {
-				zlog.Error("Get Group Members Failed",
-					zap.Error(err))
-				return
-			}
-			//遍历，发送
-			for _, memberID := range memberIds {
-				manager.sendToUser(memberID, jsonBytes)
-			}
-		}**/
 		ctx := context.Background()
 		err := mq.GlobalKafka.Publish(ctx, nil, message)
 		if err != nil {
 			zlog.Error("Kafka Publish Error", zap.Error(err))
 			return
 		}
+	}**/
+	var baseMsg struct {
+		Action  Action          `json:"action"`
+		Content json.RawMessage `json:"content"`
+	}
+	if err := json.Unmarshal(message, &baseMsg); err != nil {
+		zlog.Error("Parse message failed", zap.Error(err))
+		return
+	}
+	switch baseMsg.Action {
+	case ActionChatMessage:
+		ctx := context.Background()
+		err := mq.GlobalKafka.Publish(ctx, nil, message)
+		if err != nil {
+			zlog.Error("kafka publish error", zap.Error(err))
+		}
+
+	case ActionHeartbeat:
+	case ActionAck:
+		var ackData AckMessage
+		if err := json.Unmarshal(baseMsg.Content, &ackData); err != nil {
+			return
+		}
+		zlog.Info("收到ACK",
+			zap.String("msg_id", ackData.MsgId),
+			zap.String("user_id", ackData.UserId))
 	}
 }
 func (manager *ClientManager) sendToUser(targetId string, msg []byte) {
