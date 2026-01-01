@@ -14,6 +14,17 @@ type Session struct {
 	TargetId  string `gorm:"type:varchar(255);uniqueIndex:idx_user_target;not null;comment:会话目标Id，单聊为好友Id，群聊为群Id"`
 }
 
+// 用于redis存储的结构
+type SessionCache struct {
+	Type      int    `json:"type"`
+	TargetId  string `json:"target_id"`
+	Name      string `json:"name"`
+	Avatar    string `json:"avatar"`
+	LastTime  int64  `json:"last_time"`
+	LastMsg   string `json:"last_msg"`
+	UnreadCnt int    `json:"unread_cnt"`
+}
+
 func (Session) TableName() string {
 	return "sessions"
 }

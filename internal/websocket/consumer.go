@@ -68,6 +68,11 @@ func (manager *ClientManager) StartConsumer() {
 			if err := json.Unmarshal(kafkaMsg.Content, &chatData); err != nil {
 				return
 			}
+			zlog.Info("Consumer处理消息",
+				zap.Int("收到Type", chatData.Type),
+				zap.String("发送者", chatData.SendId),
+				zap.String("接收者", chatData.ReceiverId),
+				zap.String("内容", chatData.Content))
 			jsonBytes, _ := json.Marshal(chatData)
 			if chatData.Type == 1 {
 				manager.sendToUser(chatData.ReceiverId, jsonBytes)
@@ -77,7 +82,63 @@ func (manager *ClientManager) StartConsumer() {
 				for _, memberId := range memberIds {
 					manager.sendToUser(memberId, jsonBytes)
 				}
-
+			}
+			//Session更新逻辑,每条消息都数据库更新
+			currentTs := time.Now().Unix()
+			if chatData.Type == 1 {
+				//私聊，更新发送者
+				_ = manager.sessionRepo.UpsertSession(&model.Session{
+					UserId:    chatData.SendId,
+					TargetId:  chatData.ReceiverId,
+					Type:      1,
+					LastMsg:   chatData.Content,
+					LastTime:  currentTs,
+					UnreadCnt: 0,
+				})
+				//删除发送者的缓存，使每一次拉列表都会重新加载数据
+				err := manager.sessionRepo.DeleteSessionCache(chatData.SendId)
+				if err != nil {
+					return
+				}
+				//私聊，更新接收者
+				_ = manager.sessionRepo.UpsertSession(&model.Session{
+					UserId:    chatData.ReceiverId,
+					TargetId:  chatData.SendId,
+					Type:      1,
+					LastMsg:   chatData.Content,
+					LastTime:  currentTs,
+					UnreadCnt: 1,
+				})
+				err = manager.sessionRepo.DeleteSessionCache(chatData.ReceiverId)
+				if err != nil {
+					return
+				}
+			} else if chatData.Type == 2 {
+				memberIds, err := manager.chatService.GetGroupMemberIDs(chatData.ReceiverId)
+				if err != nil {
+					zlog.Error("Get group member id error", zap.Error(err))
+					return
+				}
+				//直接遍历更新，这里有写扩散问题，如果在一个500人群聊里发消息，
+				//要遍历499次，也就是要操作数据库500次（1次存，499次更新），如果一秒10个人发消息
+				//就要操作5000次写入
+				//优化方案是改为读扩散，不懂，暂时没实现
+				for _, memberId := range memberIds {
+					unread := 0
+					if memberId != chatData.SendId {
+						unread = 1
+					}
+					_ = manager.sessionRepo.UpsertSession(&model.Session{
+						UserId:    chatData.SendId,
+						TargetId:  chatData.ReceiverId, //群Id
+						Type:      2,
+						LastMsg:   "群消息:" + chatData.Content,
+						LastTime:  currentTs,
+						UnreadCnt: unread,
+					})
+					manager.sendToUser(memberId, jsonBytes)
+					_ = manager.sessionRepo.DeleteSessionCache(memberId)
+				}
 			}
 			//now := time.Now()
 			msgModel := &model.Message{

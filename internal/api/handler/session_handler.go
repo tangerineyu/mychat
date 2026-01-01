@@ -27,3 +27,8 @@ func (h *SessionHandler) List(c *gin.Context) {
 	}
 	SendResponse(c, nil, list)
 }
+
+type AddSessionReq struct {
+	TargetId string `json:"target_id" binding:"required"`
+	Type     string `json:"type" binding:"required"`
+}

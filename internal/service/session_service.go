@@ -2,7 +2,11 @@ package service
 
 import (
 	//"my-chat/internal/model"
+	"my-chat/internal/model"
 	"my-chat/internal/repo"
+	"my-chat/pkg/zlog"
+
+	"go.uber.org/zap"
 )
 
 type SessionService struct {
@@ -30,6 +34,26 @@ type SessionDto struct {
 }
 
 func (s *SessionService) GetUserSessions(userId string) ([]SessionDto, error) {
+	//先查redis
+	cacheList, err := s.sessionRepo.GetListFromCache(userId)
+	if err == nil && len(cacheList) > 0 {
+		//缓存命中，直接组装返回，不用mysql
+		var result []SessionDto
+		for _, v := range cacheList {
+			result = append(result, SessionDto{
+				TargetId:  v.TargetId,
+				Type:      v.Type,
+				Name:      v.Name,
+				Avatar:    v.Avatar,
+				LastMsg:   v.LastMsg,
+				LastTime:  v.LastTime,
+				UnreadCnt: v.UnreadCnt,
+			})
+		}
+		zlog.Info("Session list hit cache",
+			zap.String("userId", userId))
+		return result, nil
+	}
 	sessions, err := s.sessionRepo.GetList(userId)
 	if err != nil {
 		return nil, err
@@ -76,5 +100,24 @@ func (s *SessionService) GetUserSessions(userId string) ([]SessionDto, error) {
 			UnreadCnt: sess.UnreadCnt,
 		})
 	}
+	//查完mysql，异步填回redis
+	go func() {
+		for _, dto := range result {
+			cacheItem := &model.SessionCache{
+				TargetId:  dto.TargetId,
+				Type:      dto.Type,
+				Name:      dto.Name,
+				Avatar:    dto.Avatar,
+				LastMsg:   dto.LastMsg,
+				LastTime:  dto.LastTime,
+				UnreadCnt: dto.UnreadCnt,
+			}
+			_ = s.sessionRepo.SaveSessionToCache(userId, cacheItem)
+		}
+	}()
 	return result, nil
+}
+func (s *SessionService) UpsertSession(session *model.Session) error {
+
+	return s.sessionRepo.UpsertSession(session)
 }

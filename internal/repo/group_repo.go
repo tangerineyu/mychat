@@ -35,7 +35,7 @@ func (r *groupRepository) FindGroupsByIds(groupIds []string) (map[string]*model.
 	if len(groupIds) == 0 {
 		return make(map[string]*model.Group), nil
 	}
-	err := r.db.Where("group_id IN (?)", groupIds).Find(&groups).Error
+	err := r.db.Where("id IN (?)", groupIds).Find(&groups).Error
 	if err != nil {
 		return nil, err
 	}
