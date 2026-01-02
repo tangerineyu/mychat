@@ -22,16 +22,25 @@ func main() {
 		_ = zlog.L.Sync()
 	}()
 	zlog.Info("my chat 正在启动")
-	dao.InitDB()
-	dao.InitRedis()
-	mq.InitKafka()
+	db, err := dao.NewMySQL(&config.GlobalConfig.MySQL)
+	if err != nil {
+		zlog.Error("数据库初始化失败", zap.Error(err))
+		panic(err)
+	}
+	rdb, err := dao.NewRedis(&config.GlobalConfig.Redis)
+	if err != nil {
+		zlog.Error("Redis初始化失败", zap.Error(err))
+		panic(err)
+	}
+	kafkaClient := mq.NewKafkaClient(&config.GlobalConfig.Kafka)
+	defer kafkaClient.Close()
 
-	userRepo := repo.NewUserRepository(dao.DB)
-	msgRepo := repo.NewMessageRepository(dao.DB)
-	groupRepo := repo.NewGroupRepository(dao.DB, dao.RDB)
-	contactRepo := repo.NewContactRepository(dao.DB)
-	sessionRepo := repo.NewSessionRepository(dao.DB, dao.RDB)
-	adminRepo := repo.NewAdminRepository(dao.DB)
+	userRepo := repo.NewUserRepository(db)
+	msgRepo := repo.NewMessageRepository(db)
+	groupRepo := repo.NewGroupRepository(db, rdb)
+	contactRepo := repo.NewContactRepository(db)
+	sessionRepo := repo.NewSessionRepository(db, rdb)
+	adminRepo := repo.NewAdminRepository(db)
 
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(msgRepo, groupRepo)
@@ -40,7 +49,7 @@ func main() {
 	sessionService := service.NewSessionService(sessionRepo, groupRepo, userRepo)
 	adminService := service.NewAdminService(adminRepo)
 
-	wsManager := websocket.NewClientManager(chatService, sessionRepo)
+	wsManager := websocket.NewClientManager(chatService, sessionRepo, kafkaClient)
 	go wsManager.Start()
 	go wsManager.StartConsumer()
 	userHandler := handler.NewUserHandler(userService)

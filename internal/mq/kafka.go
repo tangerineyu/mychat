@@ -2,10 +2,10 @@ package mq
 
 import (
 	"context"
-	"github.com/segmentio/kafka-go"
-	"log"
 	"my-chat/internal/config"
 	"time"
+
+	"github.com/segmentio/kafka-go"
 )
 
 type KafkaClient struct {
@@ -13,10 +13,7 @@ type KafkaClient struct {
 	Reader *kafka.Reader
 }
 
-var GlobalKafka *KafkaClient
-
-func InitKafka() {
-	cfg := config.GlobalConfig.Kafka
+func NewKafkaClient(cfg *config.KafkaConfig) *KafkaClient {
 	writer := &kafka.Writer{
 		Addr:         kafka.TCP(cfg.Addr),
 		Topic:        cfg.Topic,
@@ -30,15 +27,22 @@ func InitKafka() {
 		MinBytes: 10e3, // 10KB
 		MaxBytes: 10e6, // 10MB
 	})
-	GlobalKafka = &KafkaClient{
+	return &KafkaClient{
 		Writer: writer,
 		Reader: reader,
 	}
-	log.Println("Kafka初始化成功")
 }
 func (k *KafkaClient) Publish(ctx context.Context, key, value []byte) error {
 	return k.Writer.WriteMessages(ctx, kafka.Message{
 		Key:   key,
 		Value: value,
 	})
+}
+func (k *KafkaClient) Close() {
+	if k.Writer != nil {
+		_ = k.Writer.Close()
+	}
+	if k.Reader != nil {
+		_ = k.Reader.Close()
+	}
 }

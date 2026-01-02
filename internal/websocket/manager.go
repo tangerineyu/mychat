@@ -24,6 +24,8 @@ type ClientManager struct {
 	chatService *service.ChatService
 	sessionRepo repo.SessionRepository
 	groupRepo   repo.GroupRepository
+
+	mqClient *mq.KafkaClient
 }
 
 // 超时常量，为了方便测试超时的时间设置的比较长
@@ -32,7 +34,7 @@ const (
 	HeartbeatTimeout  = 300
 )
 
-func NewClientManager(chatService *service.ChatService, sessionRepo repo.SessionRepository) *ClientManager {
+func NewClientManager(chatService *service.ChatService, sessionRepo repo.SessionRepository, mqClient *mq.KafkaClient) *ClientManager {
 	return &ClientManager{
 		Register:    make(chan *Client),
 		Unregister:  make(chan *Client),
@@ -40,6 +42,7 @@ func NewClientManager(chatService *service.ChatService, sessionRepo repo.Session
 		Clients:     make(map[string]*Client),
 		chatService: chatService,
 		sessionRepo: sessionRepo,
+		mqClient:    mqClient,
 	}
 }
 func (manager *ClientManager) StartHeartbeat() {
@@ -128,7 +131,7 @@ func (manager *ClientManager) dispatch(message []byte) {
 	switch baseMsg.Action {
 	case ActionChatMessage:
 		ctx := context.Background()
-		err := mq.GlobalKafka.Publish(ctx, nil, message)
+		err := manager.mqClient.Publish(ctx, nil, message)
 		if err != nil {
 			zlog.Error("kafka publish error", zap.Error(err))
 		}

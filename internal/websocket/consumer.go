@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"my-chat/internal/model"
-	"my-chat/internal/mq"
 	"my-chat/pkg/zlog"
 	"time"
 
@@ -24,7 +23,7 @@ func (manager *ClientManager) StartConsumer() {
 	msgChan := make(chan []byte, 256)
 	go func() {
 		for {
-			m, err := mq.GlobalKafka.Reader.ReadMessage(context.Background())
+			m, err := manager.mqClient.Reader.ReadMessage(context.Background())
 			if err != nil {
 				zlog.Error("Kafka.Reader Error", zap.Error(err))
 				time.Sleep(100 * time.Millisecond)
