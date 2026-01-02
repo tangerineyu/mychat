@@ -53,6 +53,8 @@ func (h *ContactHandler) AgreeFriend(c *gin.Context) {
 	}
 	SendResponse(c, nil, gin.H{"message": "已添加好友"})
 }
+
+// 获取联系人列表
 func (h *ContactHandler) GetContactList(c *gin.Context) {
 	userId := c.GetString("userId")
 	list, err := h.contactService.GetContactList(userId)
@@ -62,6 +64,8 @@ func (h *ContactHandler) GetContactList(c *gin.Context) {
 	}
 	SendResponse(c, nil, list)
 }
+
+// 获取申请列表
 func (h *ContactHandler) GetApplyList(c *gin.Context) {
 	userId := c.GetString("userId")
 	list, err := h.contactService.GetApplyList(userId)
@@ -76,6 +80,7 @@ type RefuseReq struct {
 	ApplyId uint `json:"apply_id" binding:"required"`
 }
 
+// 拒绝申请
 func (h *ContactHandler) RefuseApply(c *gin.Context) {
 	var req RefuseReq
 	if err := c.ShouldBindJSON(&req); err != nil {

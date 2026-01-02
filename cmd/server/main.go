@@ -9,6 +9,7 @@ import (
 	"my-chat/internal/repo"
 	"my-chat/internal/service"
 	"my-chat/internal/websocket"
+	"my-chat/pkg/util/snowflake"
 	"my-chat/pkg/zlog"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,13 @@ func main() {
 		_ = zlog.L.Sync()
 	}()
 	zlog.Info("my chat 正在启动")
+	
+	machineID := config.GlobalConfig.App.Machine
+	if machineID == 0 {
+		zlog.Warn("MachineID is 0 ensure this is intended")
+	}
+	snowflake.Init(machineID)
+
 	db, err := dao.NewMySQL(&config.GlobalConfig.MySQL)
 	if err != nil {
 		zlog.Error("数据库初始化失败", zap.Error(err))

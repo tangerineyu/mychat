@@ -37,7 +37,7 @@ func (r *messageRepository) GetMessages(userId, targetId string, chatType int, o
 	} else {
 		db = db.Where("type = 2 AND to_id = ?", targetId)
 	}
-	err := db.Order("created_at DESC").
+	err := db.Order("uuid DESC").
 		Offset(offset).
 		Limit(limit).
 		Find(&messages).Error

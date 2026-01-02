@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"my-chat/internal/model"
 	"my-chat/internal/repo"
-
-	"github.com/google/uuid"
+	"my-chat/pkg/util/snowflake"
 )
 
 type ChatService struct {
@@ -31,8 +30,10 @@ type MsgPayload struct {
 }
 
 func (s *ChatService) SaveAndFactory(fromId, toId, content string, chatType, mediaType int) ([]byte, error) {
+	//不再使用uuid， uuid是无序的，GetMessages拉取聊天记录时，可能导致消息乱序
+	msgId := snowflake.GenStringID()
 	msgModel := &model.Message{
-		Uuid:       "M" + uuid.New().String(),
+		Uuid:       msgId,
 		FromUserId: fromId,
 		ToId:       toId,
 		Content:    content,

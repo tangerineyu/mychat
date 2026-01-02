@@ -11,6 +11,7 @@ type Config struct {
 	Log   LogConfig
 	Redis RedisConfig
 	Kafka KafkaConfig
+	App   AppConfig
 }
 type MySQLConfig struct {
 	Host     string
@@ -38,6 +39,10 @@ type KafkaConfig struct {
 	Addr  string
 	Topic string
 	Group string
+}
+type AppConfig struct {
+	Machine int64 `mapstructure:"machine_id"`
+	Port    int64 `mapstructure:"port"`
 }
 
 var GlobalConfig *Config
