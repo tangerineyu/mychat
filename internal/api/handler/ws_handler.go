@@ -5,6 +5,7 @@ import (
 	"my-chat/pkg/errno"
 	"my-chat/pkg/zlog"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	gorilla "github.com/gorilla/websocket"
@@ -20,7 +21,8 @@ var upgrader = gorilla.Upgrader{
 }
 
 type WSHandler struct {
-	manager *websocket.ClientManager
+	manager       *websocket.ClientManager
+	HeartbeatTime int64
 }
 
 func NewWSHandler(manager *websocket.ClientManager) *WSHandler {
@@ -38,10 +40,11 @@ func (h *WSHandler) Connect(c *gin.Context) {
 		return
 	}
 	client := &websocket.Client{
-		Manager: h.manager,
-		Conn:    conn,
-		UserId:  userId,
-		Send:    make(chan []byte, 256),
+		Manager:       h.manager,
+		Conn:          conn,
+		UserId:        userId,
+		Send:          make(chan []byte, 256),
+		HeartbeatTime: time.Now().Unix(),
 	}
 	h.manager.Register <- client
 

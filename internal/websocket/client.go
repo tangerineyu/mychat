@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"my-chat/pkg/zlog"
 	"time"
 
@@ -17,10 +18,11 @@ const (
 
 // Client代表一个WebSocket连接用户
 type Client struct {
-	Manager *ClientManager  //客户端管理器，读到消息后广播， 断开注销
-	Conn    *websocket.Conn //实际的ws连接
-	UserId  string          //用户ID，这个连接属于谁
-	Send    chan []byte     //发送缓冲通道
+	Manager       *ClientManager  //客户端管理器，读到消息后广播， 断开注销
+	Conn          *websocket.Conn //实际的ws连接
+	UserId        string          //用户ID，这个连接属于谁
+	Send          chan []byte     //发送缓冲通道
+	HeartbeatTime int64
 }
 
 // ReadPump负责从WebSocket连接中读取消息，检查客户端是不是活着
@@ -50,6 +52,17 @@ func (c *Client) ReadPump() {
 				zlog.Error("WS read error", zap.Error(err))
 			}
 			break
+		}
+		//心跳处理逻辑
+		var baseMsg struct {
+			Action string `json:"action"`
+		}
+		if err := json.Unmarshal(message, &baseMsg); err == nil {
+			if baseMsg.Action == "heartbeat" {
+				c.HeartbeatTime = time.Now().Unix()
+				zlog.Debug("收到心跳", zap.String("userId", c.UserId))
+				continue
+			}
 		}
 		c.Manager.Broadcast <- message
 	}

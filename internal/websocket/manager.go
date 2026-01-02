@@ -8,6 +8,7 @@ import (
 	"my-chat/internal/service"
 	"my-chat/pkg/zlog"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -25,6 +26,12 @@ type ClientManager struct {
 	groupRepo   repo.GroupRepository
 }
 
+// 超时常量，为了方便测试超时的时间设置的比较长
+const (
+	HeartbeatInterval = 30 * time.Second
+	HeartbeatTimeout  = 300
+)
+
 func NewClientManager(chatService *service.ChatService, sessionRepo repo.SessionRepository) *ClientManager {
 	return &ClientManager{
 		Register:    make(chan *Client),
@@ -35,8 +42,33 @@ func NewClientManager(chatService *service.ChatService, sessionRepo repo.Session
 		sessionRepo: sessionRepo,
 	}
 }
+func (manager *ClientManager) StartHeartbeat() {
+	//定义定时器
+	ticker := time.NewTicker(HeartbeatInterval)
+	defer ticker.Stop()
+	zlog.Info("Heartbeat checker started...")
+	for range ticker.C {
+		//加锁，要遍历Clients map
+		manager.rwLock.Lock()
+		now := time.Now().Unix()
+		for userId, client := range manager.Clients {
+			if now-client.HeartbeatTime > HeartbeatTimeout {
+				zlog.Warn("心跳超时，下线",
+					zap.String("userId", userId),
+					zap.Int64("last_beat", client.HeartbeatTime))
+				client.Conn.Close()
+				delete(manager.Clients, userId)
+			}
+		}
+		manager.rwLock.Unlock()
+	}
+}
 func (manager *ClientManager) Start() {
 	zlog.Info("Websocket Client Manager Started")
+	//启动心跳
+	go manager.StartHeartbeat()
+	//启动消费者
+	go manager.StartConsumer()
 	for {
 		select {
 		case client := <-manager.Register:
