@@ -22,4 +22,4 @@ kafka:
   group: "chat_consumer_group"
 app:
   machine_id: 1
-  port: "8080"
+  port: 8080

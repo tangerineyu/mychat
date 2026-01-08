@@ -122,7 +122,7 @@ func (h *ContactHandler) BlackContact(c *gin.Context) {
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
-	userId := c.GetString("userString")
+	userId := c.GetString("userId")
 	if err := h.contactService.BlackContact(userId, req.TargetId); err != nil {
 		SendResponse(c, err, nil)
 		return

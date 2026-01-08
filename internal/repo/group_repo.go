@@ -46,7 +46,8 @@ func (r *groupRepository) FindGroupsByIds(groupIds []string) (map[string]*model.
 	if len(groupIds) == 0 {
 		return make(map[string]*model.Group), nil
 	}
-	err := r.db.Where("id IN (?)", groupIds).Find(&groups).Error
+	// groupIds 存的是 uuid
+	err := r.db.Where("uuid IN (?)", groupIds).Find(&groups).Error
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +84,13 @@ func (r *groupRepository) RemoveMember(groupId, userId string) error {
 
 func (r *groupRepository) GetUserJoinedGroups(userId string) ([]*model.Group, error) {
 	var groups []*model.Group
-	//select g.* from groups g join group_members m on g.uuid = m.group_id where m.userid = ?
+	// SELECT g.* FROM groups g JOIN group_members m ON g.uuid = m.group_id WHERE m.user_id = ?
 	err := r.db.Table("groups").
 		Select("groups.*").
-		Joins("JOIN group_members ON group_members.group_id = group.uuid").
+		Joins("JOIN group_members ON group_members.group_id = groups.uuid").
 		Where("group_members.user_id = ?", userId).
 		Find(&groups).Error
 	return groups, err
-
 }
 
 func (r *groupRepository) GetGroupMembers(groupId string) ([]*model.GroupMember, error) {
@@ -148,35 +148,30 @@ func NewGroupRepository(db *gorm.DB, rdb *redis.Client) GroupRepository {
 func (r *groupRepository) GetMemberIDs(groupId string) ([]string, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("im:group:members:%s", groupId)
-	//先查缓存
-	val, err := r.rdb.SMembers(ctx, cacheKey).Result()
-	if err == nil {
+
+	// 统一用 string value（json）存储
+	strVal, err := r.rdb.Get(ctx, cacheKey).Result()
+	if err == nil && strVal != "" {
 		var userIds []string
-		//将[]string转为[]byte再反序列化
-		var byteVals []byte
-		for _, v := range val {
-			byteVals = append(byteVals, []byte(v)...)
-		}
-		if err := json.Unmarshal(byteVals, &userIds); err == nil {
+		if err := json.Unmarshal([]byte(strVal), &userIds); err == nil {
 			return userIds, nil
 		}
-	} else if err != redis.Nil {
+	} else if err != nil && err != redis.Nil {
 		zlog.Error("Redis Get Error", zap.Error(err))
 	}
 
-	//缓存未命中
+	// 缓存未命中，查 DB
 	var userIds []string
-	//只查user_id字段， Pluck是grom专门查单列数据的
 	err = r.db.Model(&model.GroupMember{}).
 		Where("group_id = ?", groupId).
 		Pluck("user_id", &userIds).Error
 	if err != nil {
 		return nil, err
 	}
+
 	jsonBytes, _ := json.Marshal(userIds)
-	err = r.rdb.Set(ctx, cacheKey, jsonBytes, 1*time.Hour).Err()
-	if err != nil {
+	if err := r.rdb.Set(ctx, cacheKey, string(jsonBytes), 1*time.Hour).Err(); err != nil {
 		zlog.Error("Redis Set Error", zap.Error(err))
 	}
-	return userIds, err
+	return userIds, nil
 }

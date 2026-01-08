@@ -81,3 +81,8 @@ func (s *ChatService) GetHistory(userId, targetId string, chatType int) ([]MsgPa
 func (s *ChatService) BatchSave(messages []*model.Message) error {
 	return s.msgRepo.BatchCreate(messages)
 }
+
+// 单条插入消息
+func (s *ChatService) InsertMessage(message *model.Message) error {
+	return s.msgRepo.CreateMessage(message)
+}

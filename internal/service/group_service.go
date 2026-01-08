@@ -115,8 +115,8 @@ func (s *GroupService) GetGroupMembers(groupId string) ([]GroupMemberResp, error
 	}
 	return resp, nil
 }
-func (s *GroupService) LoadMyJoinedGroup(userId string) (*model.Group, error) {
-	return s.groupRepo.FindGroup(userId)
+func (s *GroupService) LoadMyJoinedGroup(userId string) ([]*model.Group, error) {
+	return s.groupRepo.GetUserJoinedGroups(userId)
 }
 func (s *GroupService) LeaveGroup(groupId, userId string) error {
 	group, err := s.groupRepo.FindGroup(groupId)

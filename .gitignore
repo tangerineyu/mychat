@@ -2,3 +2,7 @@
 .vscode
 logs/
 static/
+node_modules/
+dist/
+.env
+web/

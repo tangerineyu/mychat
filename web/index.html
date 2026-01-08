@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Chat</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// Vite dev server will proxy /api to Go backend.
+export default defineConfig(({ mode }) => {
+  return {
+    plugins: [vue()],
+    server: {
+      port: 5173,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: true
+        },
+        '/static': {
+          target: 'http://localhost:8080',
+          changeOrigin: true
+        }
+      }
+    }
+  }
+})
+
